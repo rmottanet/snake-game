@@ -7,7 +7,8 @@ class SnakeGame {
         this.direction = "right";
         this.maxLength = 5;
         this.snakeSpeed = 150;
-        this.gameLoopTimeout = null; // Inicializamos com null
+        this.gameLoopTimeout = null; // Initialize with null
+        this.food = { x: 0, y: 0 }; // Initial position of the food
     }
 
     drawSnake() {
@@ -19,6 +20,12 @@ class SnakeGame {
             this.ctx.strokeStyle = "#000";
             this.ctx.strokeRect(this.snake[i].x, this.snake[i].y, this.boxSize, this.boxSize);
         }
+    }
+
+    generateFood() {
+        // Generates random coordinates for the food within the boundaries of the canvas
+        this.food.x = Math.floor(Math.random() * (this.canvas.width / this.boxSize)) * this.boxSize;
+        this.food.y = Math.floor(Math.random() * (this.canvas.height / this.boxSize)) * this.boxSize;
     }
 
     updateSnake() {
@@ -50,9 +57,20 @@ class SnakeGame {
             return;
         }
 
+        // Check if the snake's head has reached the food
+        if (cabeçaDaCobra.x === this.food.x && cabeçaDaCobra.y === this.food.y) {
+            // Generates new food and increases the size of the snake
+            this.generateFood();
+            this.maxLength++;
+        }
+
         this.drawSnake();
 
-        // Agendamento do próximo ciclo de jogo
+        // Draw the food
+        this.ctx.fillStyle = "#F00";
+        this.ctx.fillRect(this.food.x, this.food.y, this.boxSize, this.boxSize);
+
+        // Scheduling the next game cycle
         this.gameLoopTimeout = setTimeout(() => this.updateSnake(), this.snakeSpeed);
     }
 
@@ -60,70 +78,59 @@ class SnakeGame {
         const cabeçaDaCobra = this.snake[0];
         return (
             cabeçaDaCobra.x < 0 || cabeçaDaCobra.x >= this.canvas.width ||
-            cabeçaDaCobra.y < 0 || cabeçaDaCobra.y >= this.canvas.height
+            cabeçaDaCobra.y < 0 || cabeçaDaCobra.y >= this.canvas.height ||
+            this.checkSelfCollision()
         );
     }
 
-gameOver() {
+    checkSelfCollision() {
+        const cabeçaDaCobra = this.snake[0];
+        for (let i = 1; i < this.snake.length; i++) {
+            if (cabeçaDaCobra.x === this.snake[i].x && cabeçaDaCobra.y === this.snake[i].y) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    gameOver() {
         const messageElement = document.getElementById("message");
-        
-        // Define o conteúdo da mensagem
         messageElement.innerHTML = "Game Over! Pressione Espaço para jogar novamente.";
-
-        // Exibe a mensagem
         messageElement.style.display = "block";
-    
-    
-    // Remove o ouvinte de eventos "keydown" antes de adicionar novamente
-    document.removeEventListener("keydown", this.handleKeyPress);
-    
-    // Adiciona o ouvinte de eventos "keydown" novamente após um breve intervalo
-    setTimeout(() => {
-        document.addEventListener("keydown", this.handleKeyPress);
-    }, 100);
-
-    // Aqui você pode adicionar lógica adicional, se necessário
-}
-
+        document.removeEventListener("keydown", this.handleKeyPress);
+        setTimeout(() => {
+            document.addEventListener("keydown", this.handleKeyPress);
+        }, 100);
+    }
 
     resetGame() {
         this.snake = [{ x: 0, y: 0 }];
         this.direction = "right";
         this.snakeSpeed = 150;
         clearTimeout(this.gameLoopTimeout);
-
-        // Oculta a mensagem
-        // Oculta e remove o conteúdo da mensagem
         const messageElement = document.getElementById("message");
         messageElement.style.display = "none";
         messageElement.innerHTML = "";
-        
-        // Remova o ouvinte de eventos "keydown" antes de adicionar novamente
         document.removeEventListener("keydown", this.handleKeyPress);
-
-        // Adicione o ouvinte de eventos "keydown" novamente antes de iniciar o loop
         document.addEventListener("keydown", this.handleKeyPress);
-
-        // Inicie o loop do jogo após um breve intervalo
         setTimeout(() => {
             this.gameLoop();
         }, 100);
     }
 
-
-
     gameLoop() {
+        this.generateFood();
         this.updateSnake();
     }
 
     handleKeyPress = (event) => {
-        if (event.key === " ") { // Espaço
+        if (event.key === " ") {
             this.resetGame();
         } else if (event.key.startsWith("Arrow") && this.isValidDirection(event.key.slice(5).toLowerCase())) {
             this.direction = event.key.slice(5).toLowerCase();
         }
     }
-    
+
     isValidDirection(newDirection) {
         return (
             (this.direction === "up" && newDirection !== "down") ||
@@ -161,6 +168,6 @@ gameOver() {
     }
 }
 
-// Inicializa o jogo
+// Starts the game
 const snakeGame = new SnakeGame("snakeCanvas");
 snakeGame.init();

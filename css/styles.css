@@ -2,6 +2,7 @@ body, html {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    background: #000;
 }
 
 canvas {
@@ -18,4 +19,33 @@ canvas {
 	font-size: 24px;
 	font-weight: bold;
 	display: none;
+}
+
+.footer {
+    width: 100%;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 10px;
+    left: 0;
+    bottom: 0;
+    background-color: transparent !important;
+    color: #007BFF;
+}
+
+.footer ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+}
+
+.footer li {
+    margin-right: 20px;
+}
+
+.fab, .fas, .fa-solid {
+    font-size: 1.2em;    
+    color: #2C2C2C; 
+    margin-right: 10px;  
 }
