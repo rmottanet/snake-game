@@ -97,6 +97,7 @@ class SnakeGame {
         const messageElement = document.getElementById("message");
         messageElement.innerHTML = "Game Over! Pressione Espaço para jogar novamente.";
         messageElement.style.display = "block";
+        messageElement.style.color =  "#FFFFFF";
         document.removeEventListener("keydown", this.handleKeyPress);
         setTimeout(() => {
             document.addEventListener("keydown", this.handleKeyPress);
